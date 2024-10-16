@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'photo_edit_page.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Importujemy flutter_svg dla logo
+import 'package:flutter_svg/flutter_svg.dart';
+import 'styles.dart'; // Importujemy styles.dart
 
 void main() {
   runApp(const MyApp());
@@ -32,75 +33,75 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   double buttonFontSize = 20.0; // Zmienna dla rozmiaru tekstu przycisku
   Color buttonTextColor =
-      Color.fromARGB(255, 0, 145, 113); // Zmienna dla koloru tekstu
+      const Color.fromARGB(255, 255, 255, 255); // Kolor tekstu
+  bool _isTextVisible = false; // Flaga, czy tekst jest widoczny
+
+  @override
+  void initState() {
+    super.initState();
+    // Wywołanie animacji po zbudowaniu widgetu
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        _isTextVisible = true;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Czarne tło z prostym gradientem w dwóch rogach
+          // Użycie gradientu tła
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromARGB(
-                        183, 0, 192, 115), // Zielony w lewym górnym rogu
-                    Color.fromARGB(
-                        199, 115, 0, 209), // Fioletowy w prawym dolnym rogu
-                  ],
-                ),
+                gradient: AppStyles.backgroundGradient, // Gradient tła
               ),
             ),
           ),
-          // Logo SVG, przycisk i inne elementy stopniowo wyłaniające się
-          TweenAnimationBuilder(
-            tween: Tween<double>(begin: 0, end: 1),
-            duration: const Duration(seconds: 3), // Czas trwania animacji
-            builder: (context, double opacity, child) {
-              return Opacity(
-                opacity: opacity,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SvgPicture.asset(
-                        'assets/Fotomorfia.svg', // Ścieżka do pliku SVG z logo
-                        height: 350, // Ustawienie rozmiaru logo
-                        width: 350,
-                      ),
-                      const SizedBox(height: 5),
-                      ElevatedButton(
-                        onPressed: () {
-                          _navigateWithFade(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(150, 50), // Rozmiar przycisku
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 45, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(15), // Zaokrąglone rogi
-                          ),
-                        ),
-                        child: Text(
-                          'Rozpocznij',
-                          style: TextStyle(
-                            fontSize:
-                                buttonFontSize, // Dynamiczna zmiana rozmiaru tekstu
-                            color:
-                                buttonTextColor, // Dynamiczna zmiana koloru tekstu
-                          ),
-                        ),
-                      ),
-                    ],
+          // Animowane logo i przycisk pojawiające się równocześnie
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                // Logo z animacją pojawiania się
+                AppStyles.animatedOpacity(
+                  isVisible: _isTextVisible,
+                  child: SvgPicture.asset(
+                    'assets/Fotomorfia.svg',
+                    height: 350,
+                    width: 350,
                   ),
                 ),
-              );
-            },
+                const SizedBox(height: 20),
+                // Przyciski z animacją pojawiania się
+                AppStyles.animatedOpacity(
+                  isVisible: _isTextVisible,
+                  duration: const Duration(seconds: 5),
+                  child: Container(
+                    decoration: AppStyles.buttonDecoration, // Styl przycisku
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _navigateWithFade(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 45, vertical: 10),
+                        backgroundColor: Colors.transparent,
+                        shadowColor: const Color.fromARGB(255, 255, 255, 255),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Rozpocznij',
+                        style: AppStyles.buttonTextStyle(
+                            buttonFontSize, buttonTextColor), // Styl tekstu
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -109,18 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Funkcja do nawigacji z animacją fade
   void _navigateWithFade(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const PhotoEditPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Animacja fade
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-      ),
-    );
+    Navigator.of(context)
+        .push(AppStyles.createFadeRoute(const PhotoEditPage()));
   }
 }
