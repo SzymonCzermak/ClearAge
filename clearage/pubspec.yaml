@@ -32,3 +32,5 @@ flutter:
     - assets/FotomorfiaBG.png
     - assets/FotomorfiaBG.svg
     - assets/model.tflite
+    - assets/model2.tflite
+

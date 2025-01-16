@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
-import 'dart:io'; // Do obsługi plików
+import 'dart:io';
 import 'styles.dart';
 
 class PredictionDialog extends StatelessWidget {
   final String predictionResult;
   final File selectedImage;
-  final bool isLoading; // Dodano parametr isLoading
+  final double childProbability; // Prawdopodobieństwo dziecka w %
+  final double adultProbability; // Prawdopodobieństwo dorosłego w %
+  final double threshold; // Próg pełnoletności w %
+  final bool isLoading;
 
   const PredictionDialog({
     required this.predictionResult,
     required this.selectedImage,
-    this.isLoading = false, // Domyślnie false
+    required this.childProbability,
+    required this.adultProbability,
+    required this.threshold,
+    this.isLoading = false,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isAdult = adultProbability >= threshold;
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -46,9 +54,7 @@ class PredictionDialog extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: predictionResult == "Dorosły (+18)"
-                        ? const Color.fromARGB(190, 76, 175, 79)
-                        : const Color.fromARGB(190, 244, 67, 54),
+                    color: const Color.fromARGB(190, 76, 175, 79),
                     width: 4.0,
                   ),
                   borderRadius: BorderRadius.circular(20.0),
@@ -57,8 +63,8 @@ class PredictionDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15.0),
                   child: Image.file(
                     selectedImage,
-                    height: 370,
-                    width: 320,
+                    height: 250, // Zmniejszona wysokość zdjęcia
+                    width: 200, // Zmniejszona szerokość zdjęcia
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -72,20 +78,37 @@ class PredictionDialog extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : Text(
-                      predictionResult,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  : Column(
+                      children: [
+                        Text(
+                          'Dorosły: ${adultProbability.toStringAsFixed(2)}%\n'
+                          'Dziecko: ${childProbability.toStringAsFixed(2)}%',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          isAdult
+                              ? 'Finalna klasyfikacja: Pełnoletni (+18)'
+                              : 'Finalna klasyfikacja: Niepełnoletni (-18)',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
               const SizedBox(height: 30),
               Container(
                 decoration: AppStyles.buttonDecoration,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Zamknij okno dialogowe
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
