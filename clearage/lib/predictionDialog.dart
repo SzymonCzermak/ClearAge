@@ -54,7 +54,7 @@ class PredictionDialog extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: const Color.fromARGB(190, 76, 175, 79),
+                    color: isAdult ? Colors.green : Colors.red,
                     width: 4.0,
                   ),
                   borderRadius: BorderRadius.circular(20.0),

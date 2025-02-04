@@ -31,7 +31,7 @@ class _PhotoEditPageState extends State<PhotoEditPage> {
 
   Future<void> _loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset('assets/model.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/model5.tflite');
       print('Model załadowany pomyślnie.');
     } catch (e) {
       print('Błąd podczas ładowania modelu: $e');
